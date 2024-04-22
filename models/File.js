@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
-const nodemailer = require("nodemailer");
+const user = require("./User");
 
 const fileSchema = new mongoose.Schema({
-  name: {
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: user,
+  },
+  title: {
     type: String,
-    required: true,
+  },
+  content: {
+    type: String,
   },
   imageUrl: {
     type: String,
@@ -12,39 +18,6 @@ const fileSchema = new mongoose.Schema({
   tags: {
     type: String,
   },
-  email: {
-    type: String,
-  },
-});
-
-//post middleware
-// i wont be needing it so will be deleting it
-fileSchema.post("save", async function (doc) {
-  try {
-    console.log("DOC", doc);
-
-    //transporter
-    //TODO: shift this configuration under /config folder
-    let transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
-
-    //send mail
-    let info = await transporter.sendMail({
-      from: `CodeHelp - by Babbar`,
-      to: doc.email,
-      subject: "New File Uploaded on Cloudinary",
-      html: `<h2>Hello Jee</h2> <p>File Uploaded View here: <a href="${doc.imageUrl}">${doc.imageUrl}</a> </p>`,
-    });
-
-    console.log("INFO", info);
-  } catch (error) {
-    console.error(error);
-  }
 });
 
 const File = mongoose.model("File", fileSchema);
